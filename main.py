@@ -4,5 +4,5 @@ from grid_searches import do_all_grid_searches
 from CNN import do_deep_learning
 movielabels, images = get_data()
 #do_all_grid_searches(movielabels, images)
-do_deep_learning(movielabels,images)
-
+#do_deep_learning(movielabels,images)
+do_machine_learning(movielabels,images)

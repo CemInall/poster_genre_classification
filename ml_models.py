@@ -5,7 +5,8 @@ from sklearn.metrics import confusion_matrix, f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 import settings
 import os
-
+from sklearn.dummy import DummyClassifier
+import matplotlib.pyplot as plt
 
 def PCA_images(preprocessed_images):
     filename = f'{settings.data_folder}/pca_preprocessed_images_{settings.IMG_SIZE[0]}x{settings.IMG_SIZE[1]}.npy'
@@ -24,7 +25,37 @@ def data_splitting(preprocessed_images, y):
     X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
     return X_train, y_train, X_test, y_test, X_val, y_val
 
+def save_confusion_matrix(cm, class_names, classifier_name, dataset_name, image_size):
+    fig, ax = plt.subplots()
+    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    ax.figure.colorbar(im, ax=ax)
+    ax.set(xticks=np.arange(cm.shape[1]),
+           yticks=np.arange(cm.shape[0]),
+           xticklabels=class_names,
+           yticklabels=class_names,
+           ylabel='True label',
+           xlabel='Predicted label',
+           title=f'Confusion Matrix - {classifier_name} ({dataset_name}, Image Size: {image_size})')
 
+    plt.setp(ax.get_xticklabels(), rotation=45,
+             ha="right", rotation_mode="anchor")
+
+    fmt = '.2f'  # Format for displaying the values in the cells
+    thresh = cm.max() / 2.  # Threshold for determining the color of the text in the cells
+
+    # Loop over the confusion matrix and add the value in each cell
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(cm[i, j], fmt),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+
+    fig.tight_layout()
+    filename = f"results/{classifier_name}_{dataset_name}_{image_size}.png"
+    file_path = os.path.join(settings.data_folder, filename)
+    fig.savefig(file_path)
+    plt.close(fig)
+    
 def show_model_results(model, mode, X, y):
     ypred = model.predict(X)
     acc_scores = [accuracy_score(y, ypred)]
@@ -33,7 +64,7 @@ def show_model_results(model, mode, X, y):
     mean_f1_score = sum(f1_scores) / len(f1_scores)
     cm = confusion_matrix(y, ypred)
     class_names = model.classes_
-    #save_confusion_matrix(cm_val, class_names_val, 'Logistic Regression', 'Validation Set', str(settings.IMG_SIZE))
+    save_confusion_matrix(cm, class_names, model.__class__.__name__, mode, str(settings.IMG_SIZE))
     print(f'{model.__class__.__name__} {mode} accuracy: {mean_acc_score}, f1: {mean_f1_score}')
 
 
@@ -76,6 +107,14 @@ def do_random_forest(X_train, y_train, X_val, y_val, X_test, y_test):
 
     return random_forest
 
+def dummy_classifier(X_train, y_train, X_val, y_val, X_test, y_test, strategy="stratified"):
+    dummy = DummyClassifier(strategy=strategy)
+    dummy.fit(X_train, y_train)
+
+    show_model_results(dummy, 'Train', X_train, y_train)
+    show_model_results(dummy, 'Test', X_test, y_test)
+
+    return dummy
 
 def do_machine_learning(movielabels, images):
     pca_images = PCA_images(images)
