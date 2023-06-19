@@ -79,7 +79,7 @@ def do_logistic_regression(X_train, y_train, X_val, y_val, X_test, y_test):
 
 def do_knn(X_train, y_train, X_val, y_val, X_test, y_test):
     from sklearn.neighbors import KNeighborsClassifier
-    knn = KNeighborsClassifier(n_neighbors=5)
+    knn = KNeighborsClassifier(n_neighbors=10, p=2,weights='uniform')
     knn.fit(X_train, y_train)
 
     show_model_results(knn, 'Train', X_train, y_train)
@@ -99,7 +99,7 @@ def do_svm(X_train, y_train, X_val, y_val, X_test, y_test):
 
 def do_random_forest(X_train, y_train, X_val, y_val, X_test, y_test):
     from sklearn.ensemble import RandomForestClassifier
-    random_forest = RandomForestClassifier(n_estimators=50, max_depth=4, criterion='entropy',random_state=42)
+    random_forest = RandomForestClassifier(n_estimators=100, max_depth=8, criterion='entropy',random_state=42)
     random_forest.fit(X_train, y_train)
 
     show_model_results(random_forest, 'Train', X_train, y_train)

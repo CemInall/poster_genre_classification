@@ -70,8 +70,9 @@ def do_all_grid_searches(movielabels, images):
     pca_images = PCA_images(images)
     X, y = pca_images, movielabels['target']
     X_train, y_train, X_test, y_test, X_val, y_val = data_splitting(X, y)
-    random_forest_search(X_train, y_train, X_val, y_val)
-    knn_grid_search(X_train, y_train, X_val, y_val)
-    xgboost_search(X_train, y_train, X_val, y_val)
+    #random_forest_search(X_train, y_train, X_val, y_val)
+    #knn_grid_search(X_train, y_train, X_val, y_val)
     logistic_regression_search(X_train, y_train, X_val, y_val)
+    #xgboost_search(X_train, y_train, X_val, y_val)
+    
 

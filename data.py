@@ -118,13 +118,11 @@ def get_preprocess_images(movielabels):
             img = img.resize(settings.IMG_SIZE, resample=Image.BICUBIC)
 
             # Reshape the data to be 2-dimensional
-            reshaped_image = (np.array(img) / 255)
-            reshaped_image = reshaped_image.reshape(-1, 3)
-            scaler = MinMaxScaler()
-            reshaped_image = scaler.fit_transform(reshaped_image)
+            normalized_image_array = np.array(img) / 255.0
+            reshaped_image = normalized_image_array.reshape(-1, 3)
             reshaped_images.append(reshaped_image)
 
-        reshaped_images = np.array(reshaped_images, dtype="float32")
+        reshaped_images = np.array(reshaped_images)
         np.save(filename, reshaped_images)
     return np.load(filename)
 
@@ -132,7 +130,7 @@ def get_preprocess_images(movielabels):
 def get_data():
     movielabels = get_cleaned_movielabels()
     # enable if need to download again
-    download_posters(movielabels)
+    #download_posters(movielabels)
     movielabels = get_movielabels_without_dead_images(movielabels)
     images = get_preprocess_images(movielabels)
     assert (len(movielabels == images.shape[0]))

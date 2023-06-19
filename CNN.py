@@ -1,14 +1,15 @@
 import tensorflow as tf
-from tensorflow.keras import backend as K
 from tensorflow import keras
-from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout,  MaxPooling2D
+from keras import backend as K
+from keras import Sequential
+from keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout,  MaxPooling2D
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 import settings
 import matplotlib.pyplot as plt
 import plotly.express as px
 import numpy as np
+from PIL import Image
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
 
 def do_deep_learning(movielabels, images):
@@ -16,13 +17,13 @@ def do_deep_learning(movielabels, images):
     X_train, X_test, y_train, y_test = data_splitting_CNN(images, y)
     model, history = CNN_model(X_train, y_train)
     analysis = Error_Analysis(model, y_test, X_test)
-    #CNN_graph = CNN_graph(history)
+    gr = CNN_graph(history)
     print(analysis)
-    #print(CNN_graph)
+    print(gr)
 
 
 def data_splitting_CNN(X, y):
-    X = X.reshape(-1, settings.IMG_SIZE[0], settings.IMG_SIZE[1],3)
+    X = X.reshape(-1, settings.IMG_SIZE[1], settings.IMG_SIZE[0],3)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
     return X_train, X_test, y_train, y_test
 
@@ -43,8 +44,8 @@ def f1(y_true, y_pred):
 
 def CNN_model(X_train, y_train):
     model = keras.Sequential()
-    model.add(tf.keras.layers.experimental.preprocessing.Resizing(height=100, width=100))
-    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation="relu", input_shape=(100, 100, 3)))
+    #model.add(tf.keras.layers.experimental.preprocessing.Resizing(height=100, width=100, interpolation="bicubic"))
+    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation="relu", input_shape=(140, 100, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(filters=32, kernel_size=(5, 5), activation='relu'))
@@ -62,7 +63,7 @@ def CNN_model(X_train, y_train):
     model.add(Dropout(0.2))
 
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(4, activation='sigmoid')) #sigmoid softmax
+    model.add(Dense(4, activation='sigmoid')) #sigmoid
 
     # https://stackoverflow.
     # /questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory
@@ -102,9 +103,8 @@ def evaluate_model(model, X_test, y_test):
 # plot the training and validation accuracy and loss at each epoch
 
 
-def CNN_graph(history):
-    print(history)
-
+def CNN_graph(history: keras.callbacks.History):
+    history = history.history
     loss = history['loss']
     val_loss = history['val_loss']
     epochs = range(1, len(loss) + 1)

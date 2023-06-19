@@ -7,5 +7,5 @@ movielabels, images = get_data()
 print(movielabels.tail(10))
 
 #do_machine_learning(movielabels,images)
-do_all_grid_searches(movielabels, images)
-#do_deep_learning(movielabels,images)
+#do_all_grid_searches(movielabels, images)
+do_deep_learning(movielabels,images)
