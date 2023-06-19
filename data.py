@@ -6,6 +6,7 @@ import os
 from PIL import Image
 import numpy as np
 import requests
+from multiprocessing.pool import ThreadPool
 
 
 def get_cleaned_movielabels():
@@ -18,9 +19,6 @@ def get_cleaned_movielabels():
         unusable_rows = [int(row) for row in unusable_rows]
 
     movielabels = movielabels.drop(movielabels[movielabels["id"].isin(unusable_rows)].index)
-
-    # shuffle deterministically
-    movielabels = movielabels.sample(frac=1, random_state=42).reset_index(drop=True)
 
     def clean(row):
         genres = set(row.replace(" ", "").split(","))
@@ -39,17 +37,22 @@ def get_cleaned_movielabels():
     # get minimum quantity of the classes we're interesed in
     data_cutoff = min([movielabels[col].sum() for col in choices])
 
+    # shuffle deterministically
+    movielabels = movielabels.sample(frac=1, random_state=42).reset_index(drop=True)
+
     for col in choices:
         current_choice_indices = movielabels[movielabels[col] == 1].index
         indices_to_remove = current_choice_indices[data_cutoff:]
         movielabels = movielabels.drop(indices_to_remove)
+
+    # shuffle deterministically
+    movielabels = movielabels.sample(frac=1, random_state=42).reset_index(drop=True)
 
     print(movielabels.sum(axis=0))
     print(len(movielabels))
 
     movielabels.to_csv("data/cleaned_movielabels.csv", index=False)
     return movielabels
-
 
 def download_posters(movielabels):
     image_urls = movielabels['poster']
@@ -59,10 +62,10 @@ def download_posters(movielabels):
     failed_files = []
     failed_movie_ids = []
 
-    for i, (url, movie_id) in enumerate(zip(image_urls, movie_ids), start=0):
+    def download_image(url, movie_id):
         file_name = f'image_{movie_id}.jpg'
         if os.path.exists(os.path.join(folder_path, file_name)):
-            continue
+            return None
 
         response = requests.get(url)
         if response.status_code == 200:
@@ -70,14 +73,47 @@ def download_posters(movielabels):
             with open(file_path, 'wb') as f:
                 f.write(response.content)
         else:
-            print(f'Error downloading image {i}: {response.status_code}')
+            print(f'Error downloading image {movie_id}: {response.status_code}')
             failed_files.append(file_name)
+
+    pool = ThreadPool()  # Create a thread pool for parallel processing
+    pool.starmap(download_image, zip(image_urls, movie_ids))
+    pool.close()
+    pool.join()
 
     with open("data/failed_files.txt", "w") as file:
         file.write(",".join(failed_files))
 
     with open("data/failed_movie_ids.txt", "w") as file:
         file.write(",".join(failed_movie_ids))
+
+# def download_posters(movielabels):
+#     image_urls = movielabels['poster']
+#     movie_ids = movielabels['id']
+#     folder_path = settings.poster_folder
+#     os.makedirs(folder_path, exist_ok=True)
+#     failed_files = []
+#     failed_movie_ids = []
+
+#     for i, (url, movie_id) in enumerate(zip(image_urls, movie_ids), start=0):
+#         file_name = f'image_{movie_id}.jpg'
+#         if os.path.exists(os.path.join(folder_path, file_name)):
+#             continue
+
+#         response = requests.get(url)
+#         if response.status_code == 200:
+#             file_path = os.path.join(folder_path, file_name)
+#             with open(file_path, 'wb') as f:
+#                 f.write(response.content)
+#         else:
+#             print(f'Error downloading image {i}: {response.status_code}')
+#             failed_files.append(file_name)
+
+#     with open("data/failed_files.txt", "w") as file:
+#         file.write(",".join(failed_files))
+
+#     with open("data/failed_movie_ids.txt", "w") as file:
+#         file.write(",".join(failed_movie_ids))
 
 
 def get_movielabels_without_dead_images(movielabels):
@@ -111,11 +147,9 @@ def get_preprocess_images(movielabels):
 
             # Reshape the data to be 2-dimensional
             reshaped_image = (np.array(img) / 255)
-            # print(reshaped_image.shape)
             reshaped_image = reshaped_image.reshape(-1, 3)
             scaler = MinMaxScaler()
             reshaped_image = scaler.fit_transform(reshaped_image)
-            # print(reshaped_image.shape)
             reshaped_images.append(reshaped_image)
 
         reshaped_images = np.array(reshaped_images, dtype="float32")
@@ -126,7 +160,7 @@ def get_preprocess_images(movielabels):
 def get_data():
     movielabels = get_cleaned_movielabels()
     # enable if need to download again
-    # download_posters(movielabels)
+    download_posters(movielabels)
     movielabels = get_movielabels_without_dead_images(movielabels)
     images = get_preprocess_images(movielabels)
     assert (len(movielabels == images.shape[0]))

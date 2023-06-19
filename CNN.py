@@ -53,16 +53,16 @@ def CNN_model(X_train, y_train):
     model.add(Conv2D(filters=64, kernel_size=(5, 5), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Conv2D(filters=64, kernel_size=(5, 5), activation='relu'))
+    model.add(Conv2D(filters=64, kernel_size=(5, 5), activation='relu'))  #kernel size (3,3)
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Flatten())
 
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.2))
 
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(4, activation='sigmoid')) #sigmoid
+    model.add(Dense(4, activation='sigmoid')) #sigmoid softmax
 
     # https://stackoverflow.
     # /questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory
@@ -71,8 +71,8 @@ def CNN_model(X_train, y_train):
     session = tf.compat.v1.Session(config=config)
     tf.compat.v1.keras.backend.set_session(session)
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001  # tf.keras.optimizers.Adam(learning_rate=0.01) tf.keras.optimizers.RMSprop
-                                                     ), loss="binary_crossentropy", metrics=["accuracy", f1])  # categorical_crossentropy
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01  # tf.keras.optimizers.Adam(learning_rate=0.01) tf.keras.optimizers.RMSprop
+                                                     ), loss="categorical_crossentropy", metrics=["accuracy", f1])  # categorical_crossentropy
     history = model.fit(X_train, y_train, epochs=10, validation_split=0.3, batch_size=128, callbacks=[
                         tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
     # history = model.fit(X_train, y_train, epochs=10, batch_size=128, validation_split=0.3,
@@ -103,6 +103,7 @@ def evaluate_model(model, X_test, y_test):
 
 
 def CNN_graph(history):
+    print(history)
 
     loss = history['loss']
     val_loss = history['val_loss']
