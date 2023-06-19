@@ -117,7 +117,7 @@ def get_preprocess_images(movielabels):
             img = img.convert('RGB')
             img = img.resize(settings.IMG_SIZE, resample=Image.BICUBIC)
 
-            # Reshape the data to be 2-dimensional
+            # Reshape the data to be 2-dimensional 
             normalized_image_array = np.array(img) / 255.0
             reshaped_image = normalized_image_array.reshape(-1, 3)
             reshaped_images.append(reshaped_image)
