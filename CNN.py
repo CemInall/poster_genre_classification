@@ -11,11 +11,19 @@ import plotly.express as px
 import numpy as np
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
 
+def do_deep_learning(movielabels, images):
+    y = movielabels[["action", "comedy", "drama", "horror"]].values
+    X_train, X_test, y_train, y_test = data_splitting_CNN(images, y)
+    model, history = CNN_model(X_train, y_train)
+    analysis = Error_Analysis(model, y_test, X_test)
+    knn_model = CNN_graph(history)
+    print(analysis)
+    print(knn_model)
+
 
 def data_splitting_CNN(X, y):
     X = X.reshape(-1, settings.IMG_SIZE[0], settings.IMG_SIZE[1],3)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, shuffle=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
     return X_train, X_test, y_train, y_test
 
 
@@ -34,8 +42,9 @@ def f1(y_true, y_pred):
 
 
 def CNN_model(X_train, y_train):
-    model = Sequential()
-    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation="relu", input_shape=X_train.shape[1:]))
+    model = keras.Sequential()
+    model.add(tf.keras.layers.experimental.preprocessing.Resizing(height=100, width=100))
+    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation="relu", input_shape=(100, 100, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(filters=32, kernel_size=(5, 5), activation='relu'))
@@ -53,9 +62,8 @@ def CNN_model(X_train, y_train):
     model.add(Dropout(0.5))
 
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(4, activation='softmax')) #sigmoid
+    model.add(Dense(4, activation='sigmoid')) #sigmoid
 
-    model.summary()
     # https://stackoverflow.
     # /questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory
     config = tf.compat.v1.ConfigProto()
@@ -70,6 +78,7 @@ def CNN_model(X_train, y_train):
     # history = model.fit(X_train, y_train, epochs=10, batch_size=128, validation_split=0.3,
     #                     callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10)])
 
+    model.summary()
     return model, history
 
 
@@ -148,17 +157,3 @@ def Error_Analysis(model, y_test, X_test):
             pred[badIndex], y_test[badIndex]), fontsize=5)
     plt.subplots_adjust(wspace=0.1)
     plt.show()
-
-
-
-
-def do_deep_learning(movielabels, images):
-
-    X_train, y_train, X_test, y_test = data_splitting_CNN(images, movielabels)
-    model,history = CNN_model(X_train, y_train)
-    analysis = Error_Analysis(model, y_test, X_test)
-    knn_model = CNN_graph(history)
-    print(analysis)
-    print(knn_model)
-
-
