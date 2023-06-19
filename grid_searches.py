@@ -34,9 +34,8 @@ def random_forest_search(X_train, y_train, X_val, y_val):
 
 def knn_grid_search(X_train, y_train, X_val, y_val):
     parameters = {
-        'n_neighbors': [3, 5, 7, 10],
+        'n_neighbors': [1, 3, 5, 7, 10],
         'weights': ['uniform', 'distance'],
-        'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
         'p': [1, 2]
     }
 
@@ -57,9 +56,8 @@ def logistic_regression_search(X_train, y_train, X_val, y_val):
 
 def xgboost_search(X_train, y_train, X_val, y_val):
     parameters = {
-        'n_estimators': [100, 200, 300],
+        'n_estimators': [5 ,50, 100],
         'max_depth': [3, 5],
-        'learning_rate': [0.1],
     }
 
     model = XGBClassifier(random_state=42)

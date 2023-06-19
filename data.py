@@ -87,34 +87,6 @@ def download_posters(movielabels):
     with open("data/failed_movie_ids.txt", "w") as file:
         file.write(",".join(failed_movie_ids))
 
-# def download_posters(movielabels):
-#     image_urls = movielabels['poster']
-#     movie_ids = movielabels['id']
-#     folder_path = settings.poster_folder
-#     os.makedirs(folder_path, exist_ok=True)
-#     failed_files = []
-#     failed_movie_ids = []
-
-#     for i, (url, movie_id) in enumerate(zip(image_urls, movie_ids), start=0):
-#         file_name = f'image_{movie_id}.jpg'
-#         if os.path.exists(os.path.join(folder_path, file_name)):
-#             continue
-
-#         response = requests.get(url)
-#         if response.status_code == 200:
-#             file_path = os.path.join(folder_path, file_name)
-#             with open(file_path, 'wb') as f:
-#                 f.write(response.content)
-#         else:
-#             print(f'Error downloading image {i}: {response.status_code}')
-#             failed_files.append(file_name)
-
-#     with open("data/failed_files.txt", "w") as file:
-#         file.write(",".join(failed_files))
-
-#     with open("data/failed_movie_ids.txt", "w") as file:
-#         file.write(",".join(failed_movie_ids))
-
 
 def get_movielabels_without_dead_images(movielabels):
     ids = movielabels['id'].tolist()
@@ -126,7 +98,7 @@ def get_movielabels_without_dead_images(movielabels):
         if not os.path.isfile(file_path):
             movielabels = movielabels[movielabels['id'] != id]
 
-    print(f'Number of elements after removing dead images: {len(ids)}')
+    print(f'Number of elements after removing dead images: {len(movielabels)}')
     return movielabels
 
 

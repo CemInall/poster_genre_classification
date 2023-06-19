@@ -16,9 +16,9 @@ def do_deep_learning(movielabels, images):
     X_train, X_test, y_train, y_test = data_splitting_CNN(images, y)
     model, history = CNN_model(X_train, y_train)
     analysis = Error_Analysis(model, y_test, X_test)
-    knn_model = CNN_graph(history)
+    #CNN_graph = CNN_graph(history)
     print(analysis)
-    print(knn_model)
+    #print(CNN_graph)
 
 
 def data_splitting_CNN(X, y):
