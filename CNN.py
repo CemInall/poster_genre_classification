@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow import keras
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization, MaxPooling2D
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout,  MaxPooling2D
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 import settings
@@ -54,7 +54,7 @@ def CNN_model(X_train, y_train):
     model.add(Dropout(0.5))
 
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(4, activation='sigmoid'))
+    model.add(Dense(4, activation='softmax')) #sigmoid
 
     model.summary()
     # https://stackoverflow.
@@ -64,7 +64,7 @@ def CNN_model(X_train, y_train):
     session = tf.compat.v1.Session(config=config)
     tf.compat.v1.keras.backend.set_session(session)
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001  # tf.keras.optimizers.Adam(learning_rate=0.01) tf.keras.optimizers.RMSprop
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001  # tf.keras.optimizers.Adam(learning_rate=0.01) tf.keras.optimizers.RMSprop
                                                      ), loss="binary_crossentropy", metrics=["accuracy", f1])  # categorical_crossentropy
     history = model.fit(X_train, y_train, epochs=10, validation_split=0.3, batch_size=128, callbacks=[
                         tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
