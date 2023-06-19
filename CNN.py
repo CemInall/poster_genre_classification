@@ -13,8 +13,7 @@ from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_
 
 
 def data_splitting_CNN(X, y):
-    X = X.reshape(-1, settings.IMG_SIZE, settings.IMG_SIZE,
-                  1 if settings.colors == "L" else 3)
+    X = X.reshape(-1, settings.IMG_SIZE[0], settings.IMG_SIZE[1],3)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, shuffle=True)
     return X_train, X_test, y_train, y_test
@@ -149,5 +148,17 @@ def Error_Analysis(model, y_test, X_test):
             pred[badIndex], y_test[badIndex]), fontsize=5)
     plt.subplots_adjust(wspace=0.1)
     plt.show()
+
+
+
+
+def do_deep_learning(movielabels, images):
+
+    X_train, y_train, X_test, y_test = data_splitting_CNN(images, movielabels)
+    model,history = CNN_model(X_train, y_train)
+    analysis = Error_Analysis(model, y_test, X_test)
+    knn_model = CNN_graph(history)
+    print(analysis)
+    print(knn_model)
 
 

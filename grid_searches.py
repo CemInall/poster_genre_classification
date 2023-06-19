@@ -17,6 +17,7 @@ def do_grid_search(model, parameters, X_train, y_train, X_val, y_val):
     grid_search = GridSearchCV(
         estimator=model, param_grid=parameters, cv=5, scoring=scoring, refit="accuracy")
     grid_search.fit(X_train, y_train)
+    print(model.__class__.__name__)
     show_model_results(grid_search, "validation", X_val, y_val)
     print(grid_search.best_params_)
 

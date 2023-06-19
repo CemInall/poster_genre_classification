@@ -33,7 +33,7 @@ def show_model_results(model, mode, X, y):
     mean_f1_score = sum(f1_scores) / len(f1_scores)
     cm = confusion_matrix(y, ypred)
     class_names = model.classes_
-    # save_confusion_matrix(cm_val, class_names_val, 'Logistic Regression', 'Validation Set', str(settings.IMG_SIZE))
+    #save_confusion_matrix(cm_val, class_names_val, 'Logistic Regression', 'Validation Set', str(settings.IMG_SIZE))
     print(f'{model.__class__.__name__} {mode} accuracy: {mean_acc_score}, f1: {mean_f1_score}')
 
 
@@ -68,7 +68,7 @@ def do_svm(X_train, y_train, X_val, y_val, X_test, y_test):
 
 def do_random_forest(X_train, y_train, X_val, y_val, X_test, y_test):
     from sklearn.ensemble import RandomForestClassifier
-    random_forest = RandomForestClassifier(n_estimators=100, max_depth=32, random_state=42)
+    random_forest = RandomForestClassifier(n_estimators=50, max_depth=4, criterion='entropy',random_state=42)
     random_forest.fit(X_train, y_train)
 
     show_model_results(random_forest, 'Train', X_train, y_train)
